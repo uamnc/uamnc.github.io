@@ -7,15 +7,13 @@
         <title>Trade Profit Calculator</title>
 
         <style>
-		body {
-                	background: white;
-                	color: black;
-                	font-family: Sans-serif;
-		}
-            	button {
-                	padding: 0.5em 0.5em;
-            	}
-	</style>
+			body {
+                font-family: Sans-serif;
+			}
+            button {
+                padding: 0.5em 0.5em;
+            }
+		</style>
 
     </head>
 
@@ -43,6 +41,10 @@
 
         <hr />
 
+        <p>The currency of the amount you enter in 'Value Bought' is the same as the one calculated in the results.<br />For Spot Trading set the 'Multiplier' to 1, and for Leverage Trading set it to the amount of leverage you are using.</p>
+
+        <hr />
+
         <p>BTC Donations: <strong>3Ninja2D</strong>UVBG4XBV282mNnQjDmd4dUgtw6</p>
 
         <script>
@@ -60,7 +62,7 @@
 
                 var total_fees = buy_fees * value_bought * multiplier + sell_fees * value_bought * multiplier * sell_price / buy_price;
                 var net_profit = value_bought * multiplier * sell_price / buy_price - value_bought * multiplier - total_fees;
-                
+
                 if (!(isNaN(net_profit) || isNaN(total_fees))) {
                     document.getElementById("Net Profit").innerHTML = "Net Profit: " + net_profit;
                     document.getElementById("Total Fees").innerHTML = "Total Fees: " + total_fees;
