@@ -58,7 +58,7 @@
 
                 // CALCULATE THE FEES ON THE SIDE, THEN DO THE MATHS, AS THIS IS HOW THEY ARE CALCULATED IN THE EXCHANGE!
 
-                var total_fees = buy_fees * value_bought * multiplier + sell_fees * value_bought * multiplier;
+                var total_fees = buy_fees * value_bought * multiplier + sell_fees * value_bought * multiplier * sell_price / buy_price;
                 var net_profit = value_bought * multiplier * sell_price / buy_price - value_bought * multiplier - total_fees;
                 
                 if (!(isNaN(net_profit) || isNaN(total_fees))) {
