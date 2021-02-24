@@ -1,3 +1,3 @@
 # uamnc.github.io
 
-Simple No-nonsense Trade Profit Calculator
+A Simple No-Nonsense Trade Profit and Fees Calculator
