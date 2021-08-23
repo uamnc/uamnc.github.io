@@ -14,6 +14,7 @@
 			}
 			button {
 				padding: 0.5em 0.5em;
+				display: block;
 			}
 		</style>
 
@@ -23,54 +24,65 @@
 
 		<h1>Trade Profit Calculator</h1>
 
-		<p>Your Trade Configuration:</p>
+		<p>Configuration panel</p>
 
 		<form id="values" style="font-size: 1em;">
-			Buy Price: <input type="text" name="buy_price" value=""><br />
-			Sell Price: <input type="text" name="sell_price" value=""><br />
-			Amount Bought: <input type="text" name="amount_bought" value=""><br />
-			Buy Fees (%): <input type="text" name="buy_fees_percent" value="0.06"><br />
-			Sell Fees (%): <input type="text" name="sell_fees_percent" value="0.06"><br />
-			Multiplier (x): <input type="text" name="multiplier" value="1"><br />
+			Purchase Price: <input type="text" name="purchase_price" value=""><br />
+			Sale Price: <input type="text" name="sale_price" value=""><br />
+			Total Position Value: <input type="text" name="total_position_value" value=""><br />
+			Purchase Fees (%): <input type="text" name="purchase_fees_percent" value="0.0194"><br />
+			Sale Fees (%): <input type="text" name="sale_fees_percent" value="0.0679"><br />
 		</form>
 
 		<br />
 
 		<button onclick="calculate()">Calculate Net Profit and Total Fees</button>
 
-		<p id="Net Profit"></p>
-		<p id="Total Fees"></p>
+		<br />
+
+		<hr style="display: none" id="hr1" />
+
+		<p style="display: none" id="Net Profit"></p>
+		<p style="display: none" id="Total Fees"></p>
 
 		<hr />
 
-		<p>The currency you use in 'Amount Bought' is the same as the one used calculated in the results. No conversions take place.<br />For Spot Trading set the 'Multiplier' to 1, and for Leverage Trading set it to the amount of leverage you are using.</p>
+		<p>Set the <em>Total Position Value</em> to how much your position is worth. The results will be calculated in the same currency as it.</p>
+		<p>As how exchanges calculate fees, if you set your Total Position Value to a number, you will buy <strong>that amount</strong>, and your fees will be taken <strong>not</strong> from that amount, but from <strong>other funds in your account</strong>.</p>
 
-		<hr />
-
-		<p>BTC Donations: <strong>3Ninja2D</strong>UVBG4XBV282mNnQjDmd4dUgtw6</p>
+		<script src='bignumber.js'></script>
 
 		<script>
 
 			function calculate() {
 
-				var buy_price = parseFloat(document.getElementById("values").buy_price.value);
-				var sell_price = parseFloat(document.getElementById("values").sell_price.value);
-				var amount_bought = parseFloat(document.getElementById("values").amount_bought.value);
-				var buy_fees = (parseFloat(document.getElementById("values").buy_fees_percent.value) / 100);
-				var sell_fees = (parseFloat(document.getElementById("values").sell_fees_percent.value) / 100);
-				var multiplier = parseFloat(document.getElementById("values").multiplier.value);
+				var purchase_price = BigNumber(document.getElementById("values").purchase_price.value);
+				var sale_price = BigNumber(document.getElementById("values").sale_price.value);
+                var total_position_value = BigNumber(document.getElementById("values").total_position_value.value);
+				var purchase_fees = BigNumber(document.getElementById("values").purchase_fees_percent.value).dividedBy(100);
+				var sale_fees = BigNumber(document.getElementById("values").sale_fees_percent.value).dividedBy(100);
 
-				// CALCULATE THE FEES ON THE SIDE, THEN DO THE MATHS, AS THIS IS HOW THEY ARE CALCULATED IN THE EXCHANGES!
+				// net profit = value of sale - value of purchase - value of sale * sale fees - value of purchase * purchase fees
+				// (division is hard for your computer)
+				// It is key to note that on exchanges fees are not taken out of your position size, but you are charged separately.
 
-                var total_fees = buy_fees * amount_bought * multiplier + sell_fees * sell_price / buy_price * amount_bought * multiplier;
-				var net_profit = amount_bought * multiplier * sell_price / buy_price - amount_bought * multiplier - total_fees;
+				// Nesting the division and multiplaction rather than doing them one after the other code-wise prevents some inconsistencies, such as 'BigNumber(1).dividedBy(BigNumber(3).multipliedBy(BigNumber(0.25)))' works whereas 'BigNumber(1).dividedBy(BigNumber(3)).multipliedBy(BigNumber(0.25))' doesn't fully work as the last decimal is inaccurate. Doing '1/(1/n)' instead of '1*n' also works but it is less elegant.
+                var sale_value = total_position_value.multipliedBy(sale_price.dividedBy(purchase_price))
+				var total_fees = purchase_fees.multipliedBy(total_position_value).plus(total_position_value.multipliedBy(sale_price.multipliedBy(sale_fees.dividedBy(purchase_price))));
+				var net_profit = sale_value.minus(total_position_value).minus(total_fees);
 
-				if (!(isNaN(net_profit) || isNaN(total_fees))) {
-					document.getElementById("Net Profit").innerHTML = "Net Profit: " + net_profit;
-					document.getElementById("Total Fees").innerHTML = "Total Fees: " + total_fees;
+				if (!(net_profit.isNaN()) || isNaN(total_fees.isNaN())) {
+					document.getElementById("Net Profit").innerHTML = "Net Profit: " + net_profit.toString();
+					document.getElementById("Total Fees").innerHTML = "Total Fees: " + total_fees.toString();
+					document.getElementById("hr1").style.display = "block"
+					document.getElementById("Net Profit").style.display = "block"
+					document.getElementById("Total Fees").style.display = "block"
 				} else {
 					document.getElementById("Net Profit").innerHTML = "Invalid Input";
 					document.getElementById("Total Fees").innerHTML = "";
+					document.getElementById("hr1").style.display = "block"
+					document.getElementById("Net Profit").style.display = "block"
+					document.getElementById("Total Fees").style.display = "none"
 				}
 
 			}
