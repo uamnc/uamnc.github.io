@@ -62,9 +62,7 @@
 				var purchase_fees = BigNumber(document.getElementById("values").purchase_fees_percent.value).dividedBy(100);
 				var sale_fees = BigNumber(document.getElementById("values").sale_fees_percent.value).dividedBy(100);
 
-				// net profit = value of sale - value of purchase - value of sale * sale fees - value of purchase * purchase fees
-				// (division is hard for your computer)
-				// It is key to note that on exchanges fees are not taken out of your position size, but you are charged separately.
+				// It is important to note that on exchanges fees are not taken out of your position size, but you are charged separately.
 
 				// Nesting the division and multiplaction rather than doing them one after the other code-wise prevents some inconsistencies, such as 'BigNumber(1).dividedBy(BigNumber(3).multipliedBy(BigNumber(0.25)))' works whereas 'BigNumber(1).dividedBy(BigNumber(3)).multipliedBy(BigNumber(0.25))' doesn't fully work as the last decimal is inaccurate. Doing '1/(1/n)' instead of '1*n' also works but it is less elegant.
                 var sale_value = total_position_value.multipliedBy(sale_price.dividedBy(purchase_price))
